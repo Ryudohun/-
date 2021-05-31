@@ -1,56 +1,109 @@
 ﻿#include <stdio.h>
-#define MAX(a,b) ((a>b)?a:b)
-#define MAX_DEGREE 50
+#include <stdlib.h>
+#define MAX_VERTEX 30
 
-typedef struct {
-	int degree;
-	float coef[MAX_DEGREE];
-} polynomial;
+// 그래프를 인접 행렬로 표현하기 위한 구조체 정의
+typedef struct graphType {
+	int n;									// 그래프의 정점 개수
+	int adjMatrix[MAX_VERTEX][MAX_VERTEX];  // 그래프에 대한 30x30의 2차원 배열
+} graphType;
 
-polynomial addPoly(polynomial, polynomial);
-void printPoly(polynomial);
+// 공백 그래프를 생성하는 연산
+void createGraph(graphType* g) {
+	int i, j;
+	g->n = 0;								// 정점 개수를 0으로 초기화
+	for (i = 0; i < MAX_VERTEX; i++) {
+		for (j = 0; j < MAX_VERTEX; j++)
+			g->adjMatrix[i][j] = 0;			// 그래프 g에 대한 2차원 배열의 값을 0으로 초기화
+	}
+}
+
+// 그래프 g에 정점 v를 삽입하는 연산
+void insertVertex(graphType* g, int v) {
+	if (((g->n) + 1) > MAX_VERTEX) {
+		printf("\n 그래프 정점의 개수를 초과하였습니다!");
+		return;
+	}
+	g->n++; // 그래프 정점의 개수 n을 하나 증가
+}
+
+// 그래프 g에 간선 (u, v)를 삽입하는 연산
+void insertEdge(graphType* g, int u, int v) {
+	// 간선 (u, v)를 삽입하기 위해 정점 u와 v가 그래프에 존재하는지 확인
+	if (u >= g->n || v >= g->n) {
+		printf("\n 그래프에 없는 정점입니다!");
+		return;
+	}
+	g->adjMatrix[u][v] = 1;// 삽입한 간선에 대한 2차원 배열의 원소 값을 1로 설정
+}
+
+// 그래프 g의 2차원 배열 값을 순서대로 출력하는 연산
+void print_adjMatrix(graphType* g) {
+	int i, j;
+	for (i = 0; i < (g->n); i++) {
+		printf("\n\t\t");
+		for (j = 0; j < (g->n); j++)
+			printf("%2d", g->adjMatrix[i][j]);
+	}
+}
 
 void main() {
-	polynomial A = { 3, { 4, 3, 5, 0 } };
-	polynomial B = { 4, { 3, 1, 0, 2, 1 } };
+	int i;
+	graphType* G1, * G2, * G3, * G4;
+	G1 = (graphType*)malloc(sizeof(graphType));
+	G2 = (graphType*)malloc(sizeof(graphType));
+	G3 = (graphType*)malloc(sizeof(graphType));
+	G4 = (graphType*)malloc(sizeof(graphType));
+	createGraph(G1); createGraph(G2); createGraph(G3); createGraph(G4);
 
-	polynomial C;
-	C = addPoly(A, B);
+	// 그래프 G1
+	for (i = 0; i < 4; i++)
+		insertVertex(G1, i);  // G1의 정점 0~3 삽입 
+	insertEdge(G1, 0, 1);
+	insertEdge(G1, 0, 3);
+	insertEdge(G1, 1, 0);
+	insertEdge(G1, 1, 2);
+	insertEdge(G1, 1, 3);
+	insertEdge(G1, 2, 1);
+	insertEdge(G1, 2, 3);
+	insertEdge(G1, 3, 0);
+	insertEdge(G1, 3, 1);
+	insertEdge(G1, 3, 2);
+	printf("\n G1의 인접 행렬");
+	print_adjMatrix(G1);
 
-	printf("\n A(x) ="); printPoly(A);
-	printf("\n B(x) ="); printPoly(B);
-	printf("\n C(x) ="); printPoly(C);
+	// 그래프 G2
+	for (i = 0; i < 3; i++)
+		insertVertex(G2, i);  // G2의 정점 0~2 삽입 
+	insertEdge(G2, 0, 1);
+	insertEdge(G2, 0, 2);
+	insertEdge(G2, 1, 0);
+	insertEdge(G2, 1, 2);
+	insertEdge(G2, 2, 0);
+	insertEdge(G2, 2, 1);
+	printf("\n\n G2의 인접 행렬");
+	print_adjMatrix(G2);
+
+	// 그래프 G3
+	for (i = 0; i < 4; i++)
+		insertVertex(G3, i); // G3의 정점 0~3 삽입
+	insertEdge(G3, 0, 1);
+	insertEdge(G3, 0, 3);
+	insertEdge(G3, 1, 2);
+	insertEdge(G3, 1, 3);
+	insertEdge(G3, 2, 3);
+	printf("\n\n G3의 인접 행렬");
+	print_adjMatrix(G3);
+
+	// 그래프 G4
+	for (i = 0; i < 3; i++)
+		insertVertex(G4, i);    // G4의 정점 0~2 삽입 
+	insertEdge(G4, 0, 1);
+	insertEdge(G4, 0, 2);
+	insertEdge(G4, 1, 0);
+	insertEdge(G4, 1, 2);
+	printf("\n\n G4의 인접 행렬");
+	print_adjMatrix(G4);
 
 	getchar();
-}
-
-polynomial addPoly(polynomial A, polynomial B) {
-	polynomial C;
-	int A_index = 0, B_index = 0, C_index = 0;
-	int A_degree = A.degree, B_degree = B.degree; 
-	C.degree = MAX(A.degree, B.degree);
-
-	while (A_index <= A.degree && B_index <= B.degree) {
-		if (A_degree > B_degree) {
-			C.coef[C_index++] = A.coef[A_index++];
-			A_degree--;
-		}
-		else if (A_degree == B_degree) {
-			C.coef[C_index++] = B.coef[B_index++];
-			B_degree--;
-		}
-
-	}
-	return C;
-}
-
-void printPoly(polynomial P) {
-	int i, degree;
-	degree = P.degree;
-
-	for (i = 0; i <= P.degree; i++) {
-		printf("%3.0fx^%d", P.coef[i], degree--);
-		if (i < P.degree) printf(" +");
-	}
-	printf("\n"):
 }
